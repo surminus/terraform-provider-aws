@@ -551,8 +551,9 @@ func (c *EC2) AllocateHostsRequest(input *AllocateHostsInput) (req *request.Requ
 
 // AllocateHosts API operation for Amazon Elastic Compute Cloud.
 //
-// Allocates a Dedicated Host to your account. At a minimum, specify the instance
-// size type, Availability Zone, and quantity of hosts to allocate.
+// Allocates a Dedicated Host to your account. At a minimum, specify the supported
+// instance type or instance family, the Availability Zone in which to allocate
+// the host, and the number of hosts to allocate.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -12812,6 +12813,12 @@ func (c *EC2) DescribeExportImageTasksRequest(input *DescribeExportImageTasksInp
 		Name:       opDescribeExportImageTasks,
 		HTTPMethod: "POST",
 		HTTPPath:   "/",
+		Paginator: &request.Paginator{
+			InputTokens:     []string{"NextToken"},
+			OutputTokens:    []string{"NextToken"},
+			LimitToken:      "MaxResults",
+			TruncationToken: "",
+		},
 	}
 
 	if input == nil {
@@ -12853,6 +12860,58 @@ func (c *EC2) DescribeExportImageTasksWithContext(ctx aws.Context, input *Descri
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
+}
+
+// DescribeExportImageTasksPages iterates over the pages of a DescribeExportImageTasks operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See DescribeExportImageTasks method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a DescribeExportImageTasks operation.
+//    pageNum := 0
+//    err := client.DescribeExportImageTasksPages(params,
+//        func(page *ec2.DescribeExportImageTasksOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
+func (c *EC2) DescribeExportImageTasksPages(input *DescribeExportImageTasksInput, fn func(*DescribeExportImageTasksOutput, bool) bool) error {
+	return c.DescribeExportImageTasksPagesWithContext(aws.BackgroundContext(), input, fn)
+}
+
+// DescribeExportImageTasksPagesWithContext same as DescribeExportImageTasksPages except
+// it takes a Context and allows setting request options on the pages.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *EC2) DescribeExportImageTasksPagesWithContext(ctx aws.Context, input *DescribeExportImageTasksInput, fn func(*DescribeExportImageTasksOutput, bool) bool, opts ...request.Option) error {
+	p := request.Pagination{
+		NewRequest: func() (*request.Request, error) {
+			var inCpy *DescribeExportImageTasksInput
+			if input != nil {
+				tmp := *input
+				inCpy = &tmp
+			}
+			req, _ := c.DescribeExportImageTasksRequest(inCpy)
+			req.SetContext(ctx)
+			req.ApplyOptions(opts...)
+			return req, nil
+		},
+	}
+
+	for p.Next() {
+		if !fn(p.Page().(*DescribeExportImageTasksOutput), !p.HasNextPage()) {
+			break
+		}
+	}
+
+	return p.Err()
 }
 
 const opDescribeExportTasks = "DescribeExportTasks"
@@ -12928,6 +12987,138 @@ func (c *EC2) DescribeExportTasksWithContext(ctx aws.Context, input *DescribeExp
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
+}
+
+const opDescribeFastSnapshotRestores = "DescribeFastSnapshotRestores"
+
+// DescribeFastSnapshotRestoresRequest generates a "aws/request.Request" representing the
+// client's request for the DescribeFastSnapshotRestores operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DescribeFastSnapshotRestores for more information on using the DescribeFastSnapshotRestores
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the DescribeFastSnapshotRestoresRequest method.
+//    req, resp := client.DescribeFastSnapshotRestoresRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ec2-2016-11-15/DescribeFastSnapshotRestores
+func (c *EC2) DescribeFastSnapshotRestoresRequest(input *DescribeFastSnapshotRestoresInput) (req *request.Request, output *DescribeFastSnapshotRestoresOutput) {
+	op := &request.Operation{
+		Name:       opDescribeFastSnapshotRestores,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+		Paginator: &request.Paginator{
+			InputTokens:     []string{"NextToken"},
+			OutputTokens:    []string{"NextToken"},
+			LimitToken:      "MaxResults",
+			TruncationToken: "",
+		},
+	}
+
+	if input == nil {
+		input = &DescribeFastSnapshotRestoresInput{}
+	}
+
+	output = &DescribeFastSnapshotRestoresOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DescribeFastSnapshotRestores API operation for Amazon Elastic Compute Cloud.
+//
+// Describes the state of fast snapshot restores for your snapshots.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Elastic Compute Cloud's
+// API operation DescribeFastSnapshotRestores for usage and error information.
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ec2-2016-11-15/DescribeFastSnapshotRestores
+func (c *EC2) DescribeFastSnapshotRestores(input *DescribeFastSnapshotRestoresInput) (*DescribeFastSnapshotRestoresOutput, error) {
+	req, out := c.DescribeFastSnapshotRestoresRequest(input)
+	return out, req.Send()
+}
+
+// DescribeFastSnapshotRestoresWithContext is the same as DescribeFastSnapshotRestores with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DescribeFastSnapshotRestores for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *EC2) DescribeFastSnapshotRestoresWithContext(ctx aws.Context, input *DescribeFastSnapshotRestoresInput, opts ...request.Option) (*DescribeFastSnapshotRestoresOutput, error) {
+	req, out := c.DescribeFastSnapshotRestoresRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+// DescribeFastSnapshotRestoresPages iterates over the pages of a DescribeFastSnapshotRestores operation,
+// calling the "fn" function with the response data for each page. To stop
+// iterating, return false from the fn function.
+//
+// See DescribeFastSnapshotRestores method for more information on how to use this operation.
+//
+// Note: This operation can generate multiple requests to a service.
+//
+//    // Example iterating over at most 3 pages of a DescribeFastSnapshotRestores operation.
+//    pageNum := 0
+//    err := client.DescribeFastSnapshotRestoresPages(params,
+//        func(page *ec2.DescribeFastSnapshotRestoresOutput, lastPage bool) bool {
+//            pageNum++
+//            fmt.Println(page)
+//            return pageNum <= 3
+//        })
+//
+func (c *EC2) DescribeFastSnapshotRestoresPages(input *DescribeFastSnapshotRestoresInput, fn func(*DescribeFastSnapshotRestoresOutput, bool) bool) error {
+	return c.DescribeFastSnapshotRestoresPagesWithContext(aws.BackgroundContext(), input, fn)
+}
+
+// DescribeFastSnapshotRestoresPagesWithContext same as DescribeFastSnapshotRestoresPages except
+// it takes a Context and allows setting request options on the pages.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *EC2) DescribeFastSnapshotRestoresPagesWithContext(ctx aws.Context, input *DescribeFastSnapshotRestoresInput, fn func(*DescribeFastSnapshotRestoresOutput, bool) bool, opts ...request.Option) error {
+	p := request.Pagination{
+		NewRequest: func() (*request.Request, error) {
+			var inCpy *DescribeFastSnapshotRestoresInput
+			if input != nil {
+				tmp := *input
+				inCpy = &tmp
+			}
+			req, _ := c.DescribeFastSnapshotRestoresRequest(inCpy)
+			req.SetContext(ctx)
+			req.ApplyOptions(opts...)
+			return req, nil
+		},
+	}
+
+	for p.Next() {
+		if !fn(p.Page().(*DescribeFastSnapshotRestoresOutput), !p.HasNextPage()) {
+			break
+		}
+	}
+
+	return p.Err()
 }
 
 const opDescribeFleetHistory = "DescribeFleetHistory"
@@ -13604,8 +13795,8 @@ func (c *EC2) DescribeHostReservationOfferingsRequest(input *DescribeHostReserva
 //
 // Describes the Dedicated Host reservations that are available to purchase.
 //
-// The results describe all the Dedicated Host reservation offerings, including
-// offerings that may not match the instance family and Region of your Dedicated
+// The results describe all of the Dedicated Host reservation offerings, including
+// offerings that might not match the instance family and Region of your Dedicated
 // Hosts. When purchasing an offering, ensure that the instance family and Region
 // of the offering matches that of the Dedicated Hosts with which it is to be
 // associated. For more information about supported instance types, see Dedicated
@@ -22794,6 +22985,81 @@ func (c *EC2) DisableEbsEncryptionByDefaultWithContext(ctx aws.Context, input *D
 	return out, req.Send()
 }
 
+const opDisableFastSnapshotRestores = "DisableFastSnapshotRestores"
+
+// DisableFastSnapshotRestoresRequest generates a "aws/request.Request" representing the
+// client's request for the DisableFastSnapshotRestores operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See DisableFastSnapshotRestores for more information on using the DisableFastSnapshotRestores
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the DisableFastSnapshotRestoresRequest method.
+//    req, resp := client.DisableFastSnapshotRestoresRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ec2-2016-11-15/DisableFastSnapshotRestores
+func (c *EC2) DisableFastSnapshotRestoresRequest(input *DisableFastSnapshotRestoresInput) (req *request.Request, output *DisableFastSnapshotRestoresOutput) {
+	op := &request.Operation{
+		Name:       opDisableFastSnapshotRestores,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &DisableFastSnapshotRestoresInput{}
+	}
+
+	output = &DisableFastSnapshotRestoresOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// DisableFastSnapshotRestores API operation for Amazon Elastic Compute Cloud.
+//
+// Disables fast snapshot restores for the specified snapshots in the specified
+// Availability Zones.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Elastic Compute Cloud's
+// API operation DisableFastSnapshotRestores for usage and error information.
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ec2-2016-11-15/DisableFastSnapshotRestores
+func (c *EC2) DisableFastSnapshotRestores(input *DisableFastSnapshotRestoresInput) (*DisableFastSnapshotRestoresOutput, error) {
+	req, out := c.DisableFastSnapshotRestoresRequest(input)
+	return out, req.Send()
+}
+
+// DisableFastSnapshotRestoresWithContext is the same as DisableFastSnapshotRestores with the addition of
+// the ability to pass a context and additional request options.
+//
+// See DisableFastSnapshotRestores for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *EC2) DisableFastSnapshotRestoresWithContext(ctx aws.Context, input *DisableFastSnapshotRestoresInput, opts ...request.Option) (*DisableFastSnapshotRestoresOutput, error) {
+	req, out := c.DisableFastSnapshotRestoresRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
 const opDisableTransitGatewayRouteTablePropagation = "DisableTransitGatewayRouteTablePropagation"
 
 // DisableTransitGatewayRouteTablePropagationRequest generates a "aws/request.Request" representing the
@@ -23736,6 +24002,85 @@ func (c *EC2) EnableEbsEncryptionByDefault(input *EnableEbsEncryptionByDefaultIn
 // for more information on using Contexts.
 func (c *EC2) EnableEbsEncryptionByDefaultWithContext(ctx aws.Context, input *EnableEbsEncryptionByDefaultInput, opts ...request.Option) (*EnableEbsEncryptionByDefaultOutput, error) {
 	req, out := c.EnableEbsEncryptionByDefaultRequest(input)
+	req.SetContext(ctx)
+	req.ApplyOptions(opts...)
+	return out, req.Send()
+}
+
+const opEnableFastSnapshotRestores = "EnableFastSnapshotRestores"
+
+// EnableFastSnapshotRestoresRequest generates a "aws/request.Request" representing the
+// client's request for the EnableFastSnapshotRestores operation. The "output" return
+// value will be populated with the request's response once the request completes
+// successfully.
+//
+// Use "Send" method on the returned Request to send the API call to the service.
+// the "output" return value is not valid until after Send returns without error.
+//
+// See EnableFastSnapshotRestores for more information on using the EnableFastSnapshotRestores
+// API call, and error handling.
+//
+// This method is useful when you want to inject custom logic or configuration
+// into the SDK's request lifecycle. Such as custom headers, or retry logic.
+//
+//
+//    // Example sending a request using the EnableFastSnapshotRestoresRequest method.
+//    req, resp := client.EnableFastSnapshotRestoresRequest(params)
+//
+//    err := req.Send()
+//    if err == nil { // resp is now filled
+//        fmt.Println(resp)
+//    }
+//
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ec2-2016-11-15/EnableFastSnapshotRestores
+func (c *EC2) EnableFastSnapshotRestoresRequest(input *EnableFastSnapshotRestoresInput) (req *request.Request, output *EnableFastSnapshotRestoresOutput) {
+	op := &request.Operation{
+		Name:       opEnableFastSnapshotRestores,
+		HTTPMethod: "POST",
+		HTTPPath:   "/",
+	}
+
+	if input == nil {
+		input = &EnableFastSnapshotRestoresInput{}
+	}
+
+	output = &EnableFastSnapshotRestoresOutput{}
+	req = c.newRequest(op, input, output)
+	return
+}
+
+// EnableFastSnapshotRestores API operation for Amazon Elastic Compute Cloud.
+//
+// Enables fast snapshot restores for the specified snapshots in the specified
+// Availability Zones.
+//
+// You get the full benefit of fast snapshot restores after they enter the enabled
+// state. To get the current state of fast snapshot restores, use DescribeFastSnapshotRestores.
+// To disable fast snapshot restores, use DisableFastSnapshotRestores.
+//
+// Returns awserr.Error for service API and SDK errors. Use runtime type assertions
+// with awserr.Error's Code and Message methods to get detailed information about
+// the error.
+//
+// See the AWS API reference guide for Amazon Elastic Compute Cloud's
+// API operation EnableFastSnapshotRestores for usage and error information.
+// See also, https://docs.aws.amazon.com/goto/WebAPI/ec2-2016-11-15/EnableFastSnapshotRestores
+func (c *EC2) EnableFastSnapshotRestores(input *EnableFastSnapshotRestoresInput) (*EnableFastSnapshotRestoresOutput, error) {
+	req, out := c.EnableFastSnapshotRestoresRequest(input)
+	return out, req.Send()
+}
+
+// EnableFastSnapshotRestoresWithContext is the same as EnableFastSnapshotRestores with the addition of
+// the ability to pass a context and additional request options.
+//
+// See EnableFastSnapshotRestores for details on how to use this API operation.
+//
+// The context must be non-nil and will be used for request cancellation. If
+// the context is nil a panic will occur. In the future the SDK may create
+// sub-contexts for http.Requests. See https://golang.org/pkg/context/
+// for more information on using Contexts.
+func (c *EC2) EnableFastSnapshotRestoresWithContext(ctx aws.Context, input *EnableFastSnapshotRestoresInput, opts ...request.Option) (*EnableFastSnapshotRestoresOutput, error) {
+	req, out := c.EnableFastSnapshotRestoresRequest(input)
 	req.SetContext(ctx)
 	req.ApplyOptions(opts...)
 	return out, req.Send()
@@ -26492,6 +26837,10 @@ func (c *EC2) ModifyHostsRequest(input *ModifyHostsInput) (req *request.Request,
 // to provide a host ID to have the instance launch onto a specific host. If
 // no host ID is provided, the instance is launched onto a suitable host with
 // auto-placement enabled.
+//
+// You can also use this API action to modify a Dedicated Host to support either
+// multiple instance types in an instance family, or to support a specific instance
+// type only.
 //
 // Returns awserr.Error for service API and SDK errors. Use runtime type assertions
 // with awserr.Error's Code and Message methods to get detailed information about
@@ -33717,12 +34066,23 @@ type AllocateHostsInput struct {
 	// Default: off
 	HostRecovery *string `type:"string" enum:"HostRecovery"`
 
-	// Specifies the instance type for which to configure your Dedicated Hosts.
-	// When you specify the instance type, that is the only instance type that you
-	// can launch onto that host.
+	// Specifies the instance family to be supported by the Dedicated Hosts. If
+	// you specify an instance family, the Dedicated Hosts support multiple instance
+	// types within that instance family.
 	//
-	// InstanceType is a required field
-	InstanceType *string `locationName:"instanceType" type:"string" required:"true"`
+	// If you want the Dedicated Hosts to support a specific instance type only,
+	// omit this parameter and specify InstanceType instead. You cannot specify
+	// InstanceFamily and InstanceType in the same request.
+	InstanceFamily *string `type:"string"`
+
+	// Specifies the instance type to be supported by the Dedicated Hosts. If you
+	// specify an instance type, the Dedicated Hosts support instances of the specified
+	// instance type only.
+	//
+	// If you want the Dedicated Hosts to support multiple instance types in a specific
+	// instance family, omit this parameter and specify InstanceFamily instead.
+	// You cannot specify InstanceType and InstanceFamily in the same request.
+	InstanceType *string `locationName:"instanceType" type:"string"`
 
 	// The number of Dedicated Hosts to allocate to your account with these parameters.
 	//
@@ -33748,9 +34108,6 @@ func (s *AllocateHostsInput) Validate() error {
 	invalidParams := request.ErrInvalidParams{Context: "AllocateHostsInput"}
 	if s.AvailabilityZone == nil {
 		invalidParams.Add(request.NewErrParamRequired("AvailabilityZone"))
-	}
-	if s.InstanceType == nil {
-		invalidParams.Add(request.NewErrParamRequired("InstanceType"))
 	}
 	if s.Quantity == nil {
 		invalidParams.Add(request.NewErrParamRequired("Quantity"))
@@ -33783,6 +34140,12 @@ func (s *AllocateHostsInput) SetClientToken(v string) *AllocateHostsInput {
 // SetHostRecovery sets the HostRecovery field's value.
 func (s *AllocateHostsInput) SetHostRecovery(v string) *AllocateHostsInput {
 	s.HostRecovery = &v
+	return s
+}
+
+// SetInstanceFamily sets the InstanceFamily field's value.
+func (s *AllocateHostsInput) SetInstanceFamily(v string) *AllocateHostsInput {
+	s.InstanceFamily = &v
 	return s
 }
 
@@ -35271,7 +35634,6 @@ func (s *AttachNetworkInterfaceOutput) SetAttachmentId(v string) *AttachNetworkI
 	return s
 }
 
-// Contains the parameters for AttachVolume.
 type AttachVolumeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -36058,14 +36420,19 @@ func (s *AvailabilityZoneMessage) SetMessage(v string) *AvailabilityZoneMessage 
 	return s
 }
 
-// The capacity information for instances launched onto the Dedicated Host.
+// The capacity information for instances that can be launched onto the Dedicated
+// Host.
 type AvailableCapacity struct {
 	_ struct{} `type:"structure"`
 
-	// The total number of instances supported by the Dedicated Host.
+	// The number of instances that can be launched onto the Dedicated Host depending
+	// on the host's available capacity. For Dedicated Hosts that support multiple
+	// instance types, this parameter represents the number of instances for each
+	// instance size that is supported on the host.
 	AvailableInstanceCapacity []*InstanceCapacity `locationName:"availableInstanceCapacity" locationNameList:"item" type:"list"`
 
-	// The number of vCPUs available on the Dedicated Host.
+	// The number of vCPUs available for launching instances onto the Dedicated
+	// Host.
 	AvailableVCpus *int64 `locationName:"availableVCpus" type:"integer"`
 }
 
@@ -39171,7 +39538,6 @@ func (s *CopyImageOutput) SetImageId(v string) *CopyImageOutput {
 	return s
 }
 
-// Contains the parameters for CopySnapshot.
 type CopySnapshotInput struct {
 	_ struct{} `type:"structure"`
 
@@ -39247,6 +39613,7 @@ type CopySnapshotInput struct {
 	// SourceSnapshotId is a required field
 	SourceSnapshotId *string `type:"string" required:"true"`
 
+	// The tags to apply to the new snapshot.
 	TagSpecifications []*TagSpecification `locationName:"TagSpecification" locationNameList:"item" type:"list"`
 }
 
@@ -39330,13 +39697,13 @@ func (s *CopySnapshotInput) SetTagSpecifications(v []*TagSpecification) *CopySna
 	return s
 }
 
-// Contains the output of CopySnapshot.
 type CopySnapshotOutput struct {
 	_ struct{} `type:"structure"`
 
 	// The ID of the new snapshot.
 	SnapshotId *string `locationName:"snapshotId" type:"string"`
 
+	// Any tags applied to the new snapshot.
 	Tags []*Tag `locationName:"tagSet" locationNameList:"item" type:"list"`
 }
 
@@ -42867,7 +43234,6 @@ func (s *CreateSecurityGroupOutput) SetGroupId(v string) *CreateSecurityGroupOut
 	return s
 }
 
-// Contains the parameters for CreateSnapshot.
 type CreateSnapshotInput struct {
 	_ struct{} `type:"structure"`
 
@@ -42945,9 +43311,10 @@ type CreateSnapshotsInput struct {
 	// A description propagated to every snapshot specified by the instance.
 	Description *string `type:"string"`
 
-	// Checks whether you have the required permissions for the action without actually
-	// making the request. Provides an error response. If you have the required
-	// permissions, the error response is DryRunOperation. Otherwise, it is UnauthorizedOperation.
+	// Checks whether you have the required permissions for the action, without
+	// actually making the request, and provides an error response. If you have
+	// the required permissions, the error response is DryRunOperation. Otherwise,
+	// it is UnauthorizedOperation.
 	DryRun *bool `type:"boolean"`
 
 	// The instance to specify which volumes should be included in the snapshots.
@@ -44321,7 +44688,6 @@ func (s *CreateTransitGatewayVpcAttachmentRequestOptions) SetIpv6Support(v strin
 	return s
 }
 
-// Contains the parameters for CreateVolume.
 type CreateVolumeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -47479,7 +47845,6 @@ func (s DeleteSecurityGroupOutput) GoString() string {
 	return s.String()
 }
 
-// Contains the parameters for DeleteSnapshot.
 type DeleteSnapshotInput struct {
 	_ struct{} `type:"structure"`
 
@@ -48330,7 +48695,6 @@ func (s *DeleteTransitGatewayVpcAttachmentOutput) SetTransitGatewayVpcAttachment
 	return s
 }
 
-// Contains the parameters for DeleteVolume.
 type DeleteVolumeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -51077,6 +51441,222 @@ func (s DescribeExportTasksOutput) GoString() string {
 // SetExportTasks sets the ExportTasks field's value.
 func (s *DescribeExportTasksOutput) SetExportTasks(v []*ExportTask) *DescribeExportTasksOutput {
 	s.ExportTasks = v
+	return s
+}
+
+// Describes fast snapshot restores for a snapshot.
+type DescribeFastSnapshotRestoreSuccessItem struct {
+	_ struct{} `type:"structure"`
+
+	// The Availability Zone.
+	AvailabilityZone *string `locationName:"availabilityZone" type:"string"`
+
+	// The time at which fast snapshot restores entered the disabled state.
+	DisabledTime *time.Time `locationName:"disabledTime" type:"timestamp"`
+
+	// The time at which fast snapshot restores entered the disabling state.
+	DisablingTime *time.Time `locationName:"disablingTime" type:"timestamp"`
+
+	// The time at which fast snapshot restores entered the enabled state.
+	EnabledTime *time.Time `locationName:"enabledTime" type:"timestamp"`
+
+	// The time at which fast snapshot restores entered the enabling state.
+	EnablingTime *time.Time `locationName:"enablingTime" type:"timestamp"`
+
+	// The time at which fast snapshot restores entered the optimizing state.
+	OptimizingTime *time.Time `locationName:"optimizingTime" type:"timestamp"`
+
+	// The alias of the snapshot owner.
+	OwnerAlias *string `locationName:"ownerAlias" type:"string"`
+
+	// The ID of the AWS account that owns the snapshot.
+	OwnerId *string `locationName:"ownerId" type:"string"`
+
+	// The ID of the snapshot.
+	SnapshotId *string `locationName:"snapshotId" type:"string"`
+
+	// The state of fast snapshot restores.
+	State *string `locationName:"state" type:"string" enum:"FastSnapshotRestoreStateCode"`
+
+	// The reason for the state transition. The possible values are as follows:
+	//
+	//    * Client.UserInitiated - The state successfully transitioned to enabling
+	//    or disabling.
+	//
+	//    * Client.UserInitiated - Lifecycle state transition - The state successfully
+	//    transitioned to optimizing, enabled, or disabled.
+	StateTransitionReason *string `locationName:"stateTransitionReason" type:"string"`
+}
+
+// String returns the string representation
+func (s DescribeFastSnapshotRestoreSuccessItem) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeFastSnapshotRestoreSuccessItem) GoString() string {
+	return s.String()
+}
+
+// SetAvailabilityZone sets the AvailabilityZone field's value.
+func (s *DescribeFastSnapshotRestoreSuccessItem) SetAvailabilityZone(v string) *DescribeFastSnapshotRestoreSuccessItem {
+	s.AvailabilityZone = &v
+	return s
+}
+
+// SetDisabledTime sets the DisabledTime field's value.
+func (s *DescribeFastSnapshotRestoreSuccessItem) SetDisabledTime(v time.Time) *DescribeFastSnapshotRestoreSuccessItem {
+	s.DisabledTime = &v
+	return s
+}
+
+// SetDisablingTime sets the DisablingTime field's value.
+func (s *DescribeFastSnapshotRestoreSuccessItem) SetDisablingTime(v time.Time) *DescribeFastSnapshotRestoreSuccessItem {
+	s.DisablingTime = &v
+	return s
+}
+
+// SetEnabledTime sets the EnabledTime field's value.
+func (s *DescribeFastSnapshotRestoreSuccessItem) SetEnabledTime(v time.Time) *DescribeFastSnapshotRestoreSuccessItem {
+	s.EnabledTime = &v
+	return s
+}
+
+// SetEnablingTime sets the EnablingTime field's value.
+func (s *DescribeFastSnapshotRestoreSuccessItem) SetEnablingTime(v time.Time) *DescribeFastSnapshotRestoreSuccessItem {
+	s.EnablingTime = &v
+	return s
+}
+
+// SetOptimizingTime sets the OptimizingTime field's value.
+func (s *DescribeFastSnapshotRestoreSuccessItem) SetOptimizingTime(v time.Time) *DescribeFastSnapshotRestoreSuccessItem {
+	s.OptimizingTime = &v
+	return s
+}
+
+// SetOwnerAlias sets the OwnerAlias field's value.
+func (s *DescribeFastSnapshotRestoreSuccessItem) SetOwnerAlias(v string) *DescribeFastSnapshotRestoreSuccessItem {
+	s.OwnerAlias = &v
+	return s
+}
+
+// SetOwnerId sets the OwnerId field's value.
+func (s *DescribeFastSnapshotRestoreSuccessItem) SetOwnerId(v string) *DescribeFastSnapshotRestoreSuccessItem {
+	s.OwnerId = &v
+	return s
+}
+
+// SetSnapshotId sets the SnapshotId field's value.
+func (s *DescribeFastSnapshotRestoreSuccessItem) SetSnapshotId(v string) *DescribeFastSnapshotRestoreSuccessItem {
+	s.SnapshotId = &v
+	return s
+}
+
+// SetState sets the State field's value.
+func (s *DescribeFastSnapshotRestoreSuccessItem) SetState(v string) *DescribeFastSnapshotRestoreSuccessItem {
+	s.State = &v
+	return s
+}
+
+// SetStateTransitionReason sets the StateTransitionReason field's value.
+func (s *DescribeFastSnapshotRestoreSuccessItem) SetStateTransitionReason(v string) *DescribeFastSnapshotRestoreSuccessItem {
+	s.StateTransitionReason = &v
+	return s
+}
+
+type DescribeFastSnapshotRestoresInput struct {
+	_ struct{} `type:"structure"`
+
+	// Checks whether you have the required permissions for the action, without
+	// actually making the request, and provides an error response. If you have
+	// the required permissions, the error response is DryRunOperation. Otherwise,
+	// it is UnauthorizedOperation.
+	DryRun *bool `type:"boolean"`
+
+	// The filters. The possible values are:
+	//
+	//    * availability-zone: The Availability Zone of the snapshot.
+	//
+	//    * owner-id: The ID of the AWS account that owns the snapshot.
+	//
+	//    * snapshot-id: The ID of the snapshot.
+	//
+	//    * state: The state of fast snapshot restores for the snapshot (enabling
+	//    | optimizing | enabled | disabling | disabled).
+	Filters []*Filter `locationName:"Filter" locationNameList:"Filter" type:"list"`
+
+	// The maximum number of results to return with a single call. To retrieve the
+	// remaining results, make another call with the returned nextToken value.
+	MaxResults *int64 `type:"integer"`
+
+	// The token for the next page of results.
+	NextToken *string `type:"string"`
+}
+
+// String returns the string representation
+func (s DescribeFastSnapshotRestoresInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeFastSnapshotRestoresInput) GoString() string {
+	return s.String()
+}
+
+// SetDryRun sets the DryRun field's value.
+func (s *DescribeFastSnapshotRestoresInput) SetDryRun(v bool) *DescribeFastSnapshotRestoresInput {
+	s.DryRun = &v
+	return s
+}
+
+// SetFilters sets the Filters field's value.
+func (s *DescribeFastSnapshotRestoresInput) SetFilters(v []*Filter) *DescribeFastSnapshotRestoresInput {
+	s.Filters = v
+	return s
+}
+
+// SetMaxResults sets the MaxResults field's value.
+func (s *DescribeFastSnapshotRestoresInput) SetMaxResults(v int64) *DescribeFastSnapshotRestoresInput {
+	s.MaxResults = &v
+	return s
+}
+
+// SetNextToken sets the NextToken field's value.
+func (s *DescribeFastSnapshotRestoresInput) SetNextToken(v string) *DescribeFastSnapshotRestoresInput {
+	s.NextToken = &v
+	return s
+}
+
+type DescribeFastSnapshotRestoresOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Information about the state of fast snapshot restores.
+	FastSnapshotRestores []*DescribeFastSnapshotRestoreSuccessItem `locationName:"fastSnapshotRestoreSet" locationNameList:"item" type:"list"`
+
+	// The token to use to retrieve the next page of results. This value is null
+	// when there are no more results to return.
+	NextToken *string `locationName:"nextToken" type:"string"`
+}
+
+// String returns the string representation
+func (s DescribeFastSnapshotRestoresOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DescribeFastSnapshotRestoresOutput) GoString() string {
+	return s.String()
+}
+
+// SetFastSnapshotRestores sets the FastSnapshotRestores field's value.
+func (s *DescribeFastSnapshotRestoresOutput) SetFastSnapshotRestores(v []*DescribeFastSnapshotRestoreSuccessItem) *DescribeFastSnapshotRestoresOutput {
+	s.FastSnapshotRestores = v
+	return s
+}
+
+// SetNextToken sets the NextToken field's value.
+func (s *DescribeFastSnapshotRestoresOutput) SetNextToken(v string) *DescribeFastSnapshotRestoresOutput {
+	s.NextToken = &v
 	return s
 }
 
@@ -56961,7 +57541,6 @@ func (s *DescribeSecurityGroupsOutput) SetSecurityGroups(v []*SecurityGroup) *De
 	return s
 }
 
-// Contains the parameters for DescribeSnapshotAttribute.
 type DescribeSnapshotAttributeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -57026,7 +57605,6 @@ func (s *DescribeSnapshotAttributeInput) SetSnapshotId(v string) *DescribeSnapsh
 	return s
 }
 
-// Contains the output of DescribeSnapshotAttribute.
 type DescribeSnapshotAttributeOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -59260,7 +59838,6 @@ func (s *DescribeTransitGatewaysOutput) SetTransitGateways(v []*TransitGateway) 
 	return s
 }
 
-// Contains the parameters for DescribeVolumeAttribute.
 type DescribeVolumeAttributeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -59325,7 +59902,6 @@ func (s *DescribeVolumeAttributeInput) SetVolumeId(v string) *DescribeVolumeAttr
 	return s
 }
 
-// Contains the output of DescribeVolumeAttribute.
 type DescribeVolumeAttributeOutput struct {
 	_ struct{} `type:"structure"`
 
@@ -61481,7 +62057,6 @@ func (s DetachNetworkInterfaceOutput) GoString() string {
 	return s.String()
 }
 
-// Contains the parameters for DetachVolume.
 type DetachVolumeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -61822,6 +62397,325 @@ func (s DisableEbsEncryptionByDefaultOutput) GoString() string {
 // SetEbsEncryptionByDefault sets the EbsEncryptionByDefault field's value.
 func (s *DisableEbsEncryptionByDefaultOutput) SetEbsEncryptionByDefault(v bool) *DisableEbsEncryptionByDefaultOutput {
 	s.EbsEncryptionByDefault = &v
+	return s
+}
+
+// Contains information about the errors that occurred when disabling fast snapshot
+// restores.
+type DisableFastSnapshotRestoreErrorItem struct {
+	_ struct{} `type:"structure"`
+
+	// The errors.
+	FastSnapshotRestoreStateErrors []*DisableFastSnapshotRestoreStateErrorItem `locationName:"fastSnapshotRestoreStateErrorSet" locationNameList:"item" type:"list"`
+
+	// The ID of the snapshot.
+	SnapshotId *string `locationName:"snapshotId" type:"string"`
+}
+
+// String returns the string representation
+func (s DisableFastSnapshotRestoreErrorItem) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DisableFastSnapshotRestoreErrorItem) GoString() string {
+	return s.String()
+}
+
+// SetFastSnapshotRestoreStateErrors sets the FastSnapshotRestoreStateErrors field's value.
+func (s *DisableFastSnapshotRestoreErrorItem) SetFastSnapshotRestoreStateErrors(v []*DisableFastSnapshotRestoreStateErrorItem) *DisableFastSnapshotRestoreErrorItem {
+	s.FastSnapshotRestoreStateErrors = v
+	return s
+}
+
+// SetSnapshotId sets the SnapshotId field's value.
+func (s *DisableFastSnapshotRestoreErrorItem) SetSnapshotId(v string) *DisableFastSnapshotRestoreErrorItem {
+	s.SnapshotId = &v
+	return s
+}
+
+// Describes an error that occurred when disabling fast snapshot restores.
+type DisableFastSnapshotRestoreStateError struct {
+	_ struct{} `type:"structure"`
+
+	// The error code.
+	Code *string `locationName:"code" type:"string"`
+
+	// The error message.
+	Message *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation
+func (s DisableFastSnapshotRestoreStateError) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DisableFastSnapshotRestoreStateError) GoString() string {
+	return s.String()
+}
+
+// SetCode sets the Code field's value.
+func (s *DisableFastSnapshotRestoreStateError) SetCode(v string) *DisableFastSnapshotRestoreStateError {
+	s.Code = &v
+	return s
+}
+
+// SetMessage sets the Message field's value.
+func (s *DisableFastSnapshotRestoreStateError) SetMessage(v string) *DisableFastSnapshotRestoreStateError {
+	s.Message = &v
+	return s
+}
+
+// Contains information about an error that occurred when disabling fast snapshot
+// restores.
+type DisableFastSnapshotRestoreStateErrorItem struct {
+	_ struct{} `type:"structure"`
+
+	// The Availability Zone.
+	AvailabilityZone *string `locationName:"availabilityZone" type:"string"`
+
+	// The error.
+	Error *DisableFastSnapshotRestoreStateError `locationName:"error" type:"structure"`
+}
+
+// String returns the string representation
+func (s DisableFastSnapshotRestoreStateErrorItem) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DisableFastSnapshotRestoreStateErrorItem) GoString() string {
+	return s.String()
+}
+
+// SetAvailabilityZone sets the AvailabilityZone field's value.
+func (s *DisableFastSnapshotRestoreStateErrorItem) SetAvailabilityZone(v string) *DisableFastSnapshotRestoreStateErrorItem {
+	s.AvailabilityZone = &v
+	return s
+}
+
+// SetError sets the Error field's value.
+func (s *DisableFastSnapshotRestoreStateErrorItem) SetError(v *DisableFastSnapshotRestoreStateError) *DisableFastSnapshotRestoreStateErrorItem {
+	s.Error = v
+	return s
+}
+
+// Describes fast snapshot restores that were successfully disabled.
+type DisableFastSnapshotRestoreSuccessItem struct {
+	_ struct{} `type:"structure"`
+
+	// The Availability Zone.
+	AvailabilityZone *string `locationName:"availabilityZone" type:"string"`
+
+	// The time at which fast snapshot restores entered the disabled state.
+	DisabledTime *time.Time `locationName:"disabledTime" type:"timestamp"`
+
+	// The time at which fast snapshot restores entered the disabling state.
+	DisablingTime *time.Time `locationName:"disablingTime" type:"timestamp"`
+
+	// The time at which fast snapshot restores entered the enabled state.
+	EnabledTime *time.Time `locationName:"enabledTime" type:"timestamp"`
+
+	// The time at which fast snapshot restores entered the enabling state.
+	EnablingTime *time.Time `locationName:"enablingTime" type:"timestamp"`
+
+	// The time at which fast snapshot restores entered the optimizing state.
+	OptimizingTime *time.Time `locationName:"optimizingTime" type:"timestamp"`
+
+	// The alias of the snapshot owner.
+	OwnerAlias *string `locationName:"ownerAlias" type:"string"`
+
+	// The ID of the AWS account that owns the snapshot.
+	OwnerId *string `locationName:"ownerId" type:"string"`
+
+	// The ID of the snapshot.
+	SnapshotId *string `locationName:"snapshotId" type:"string"`
+
+	// The state of fast snapshot restores for the snapshot.
+	State *string `locationName:"state" type:"string" enum:"FastSnapshotRestoreStateCode"`
+
+	// The reason for the state transition. The possible values are as follows:
+	//
+	//    * Client.UserInitiated - The state successfully transitioned to enabling
+	//    or disabling.
+	//
+	//    * Client.UserInitiated - Lifecycle state transition - The state successfully
+	//    transitioned to optimizing, enabled, or disabled.
+	StateTransitionReason *string `locationName:"stateTransitionReason" type:"string"`
+}
+
+// String returns the string representation
+func (s DisableFastSnapshotRestoreSuccessItem) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DisableFastSnapshotRestoreSuccessItem) GoString() string {
+	return s.String()
+}
+
+// SetAvailabilityZone sets the AvailabilityZone field's value.
+func (s *DisableFastSnapshotRestoreSuccessItem) SetAvailabilityZone(v string) *DisableFastSnapshotRestoreSuccessItem {
+	s.AvailabilityZone = &v
+	return s
+}
+
+// SetDisabledTime sets the DisabledTime field's value.
+func (s *DisableFastSnapshotRestoreSuccessItem) SetDisabledTime(v time.Time) *DisableFastSnapshotRestoreSuccessItem {
+	s.DisabledTime = &v
+	return s
+}
+
+// SetDisablingTime sets the DisablingTime field's value.
+func (s *DisableFastSnapshotRestoreSuccessItem) SetDisablingTime(v time.Time) *DisableFastSnapshotRestoreSuccessItem {
+	s.DisablingTime = &v
+	return s
+}
+
+// SetEnabledTime sets the EnabledTime field's value.
+func (s *DisableFastSnapshotRestoreSuccessItem) SetEnabledTime(v time.Time) *DisableFastSnapshotRestoreSuccessItem {
+	s.EnabledTime = &v
+	return s
+}
+
+// SetEnablingTime sets the EnablingTime field's value.
+func (s *DisableFastSnapshotRestoreSuccessItem) SetEnablingTime(v time.Time) *DisableFastSnapshotRestoreSuccessItem {
+	s.EnablingTime = &v
+	return s
+}
+
+// SetOptimizingTime sets the OptimizingTime field's value.
+func (s *DisableFastSnapshotRestoreSuccessItem) SetOptimizingTime(v time.Time) *DisableFastSnapshotRestoreSuccessItem {
+	s.OptimizingTime = &v
+	return s
+}
+
+// SetOwnerAlias sets the OwnerAlias field's value.
+func (s *DisableFastSnapshotRestoreSuccessItem) SetOwnerAlias(v string) *DisableFastSnapshotRestoreSuccessItem {
+	s.OwnerAlias = &v
+	return s
+}
+
+// SetOwnerId sets the OwnerId field's value.
+func (s *DisableFastSnapshotRestoreSuccessItem) SetOwnerId(v string) *DisableFastSnapshotRestoreSuccessItem {
+	s.OwnerId = &v
+	return s
+}
+
+// SetSnapshotId sets the SnapshotId field's value.
+func (s *DisableFastSnapshotRestoreSuccessItem) SetSnapshotId(v string) *DisableFastSnapshotRestoreSuccessItem {
+	s.SnapshotId = &v
+	return s
+}
+
+// SetState sets the State field's value.
+func (s *DisableFastSnapshotRestoreSuccessItem) SetState(v string) *DisableFastSnapshotRestoreSuccessItem {
+	s.State = &v
+	return s
+}
+
+// SetStateTransitionReason sets the StateTransitionReason field's value.
+func (s *DisableFastSnapshotRestoreSuccessItem) SetStateTransitionReason(v string) *DisableFastSnapshotRestoreSuccessItem {
+	s.StateTransitionReason = &v
+	return s
+}
+
+type DisableFastSnapshotRestoresInput struct {
+	_ struct{} `type:"structure"`
+
+	// One or more Availability Zones. For example, us-east-2a.
+	//
+	// AvailabilityZones is a required field
+	AvailabilityZones []*string `locationName:"AvailabilityZone" locationNameList:"AvailabilityZone" type:"list" required:"true"`
+
+	// Checks whether you have the required permissions for the action, without
+	// actually making the request, and provides an error response. If you have
+	// the required permissions, the error response is DryRunOperation. Otherwise,
+	// it is UnauthorizedOperation.
+	DryRun *bool `type:"boolean"`
+
+	// The IDs of one or more snapshots. For example, snap-1234567890abcdef0.
+	//
+	// SourceSnapshotIds is a required field
+	SourceSnapshotIds []*string `locationName:"SourceSnapshotId" locationNameList:"SnapshotId" type:"list" required:"true"`
+}
+
+// String returns the string representation
+func (s DisableFastSnapshotRestoresInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DisableFastSnapshotRestoresInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *DisableFastSnapshotRestoresInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "DisableFastSnapshotRestoresInput"}
+	if s.AvailabilityZones == nil {
+		invalidParams.Add(request.NewErrParamRequired("AvailabilityZones"))
+	}
+	if s.SourceSnapshotIds == nil {
+		invalidParams.Add(request.NewErrParamRequired("SourceSnapshotIds"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAvailabilityZones sets the AvailabilityZones field's value.
+func (s *DisableFastSnapshotRestoresInput) SetAvailabilityZones(v []*string) *DisableFastSnapshotRestoresInput {
+	s.AvailabilityZones = v
+	return s
+}
+
+// SetDryRun sets the DryRun field's value.
+func (s *DisableFastSnapshotRestoresInput) SetDryRun(v bool) *DisableFastSnapshotRestoresInput {
+	s.DryRun = &v
+	return s
+}
+
+// SetSourceSnapshotIds sets the SourceSnapshotIds field's value.
+func (s *DisableFastSnapshotRestoresInput) SetSourceSnapshotIds(v []*string) *DisableFastSnapshotRestoresInput {
+	s.SourceSnapshotIds = v
+	return s
+}
+
+type DisableFastSnapshotRestoresOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Information about the snapshots for which fast snapshot restores were successfully
+	// disabled.
+	Successful []*DisableFastSnapshotRestoreSuccessItem `locationName:"successful" locationNameList:"item" type:"list"`
+
+	// Information about the snapshots for which fast snapshot restores could not
+	// be disabled.
+	Unsuccessful []*DisableFastSnapshotRestoreErrorItem `locationName:"unsuccessful" locationNameList:"item" type:"list"`
+}
+
+// String returns the string representation
+func (s DisableFastSnapshotRestoresOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s DisableFastSnapshotRestoresOutput) GoString() string {
+	return s.String()
+}
+
+// SetSuccessful sets the Successful field's value.
+func (s *DisableFastSnapshotRestoresOutput) SetSuccessful(v []*DisableFastSnapshotRestoreSuccessItem) *DisableFastSnapshotRestoresOutput {
+	s.Successful = v
+	return s
+}
+
+// SetUnsuccessful sets the Unsuccessful field's value.
+func (s *DisableFastSnapshotRestoresOutput) SetUnsuccessful(v []*DisableFastSnapshotRestoreErrorItem) *DisableFastSnapshotRestoresOutput {
+	s.Unsuccessful = v
 	return s
 }
 
@@ -63501,6 +64395,326 @@ func (s *EnableEbsEncryptionByDefaultOutput) SetEbsEncryptionByDefault(v bool) *
 	return s
 }
 
+// Contains information about the errors that occurred when enabling fast snapshot
+// restores.
+type EnableFastSnapshotRestoreErrorItem struct {
+	_ struct{} `type:"structure"`
+
+	// The errors.
+	FastSnapshotRestoreStateErrors []*EnableFastSnapshotRestoreStateErrorItem `locationName:"fastSnapshotRestoreStateErrorSet" locationNameList:"item" type:"list"`
+
+	// The ID of the snapshot.
+	SnapshotId *string `locationName:"snapshotId" type:"string"`
+}
+
+// String returns the string representation
+func (s EnableFastSnapshotRestoreErrorItem) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s EnableFastSnapshotRestoreErrorItem) GoString() string {
+	return s.String()
+}
+
+// SetFastSnapshotRestoreStateErrors sets the FastSnapshotRestoreStateErrors field's value.
+func (s *EnableFastSnapshotRestoreErrorItem) SetFastSnapshotRestoreStateErrors(v []*EnableFastSnapshotRestoreStateErrorItem) *EnableFastSnapshotRestoreErrorItem {
+	s.FastSnapshotRestoreStateErrors = v
+	return s
+}
+
+// SetSnapshotId sets the SnapshotId field's value.
+func (s *EnableFastSnapshotRestoreErrorItem) SetSnapshotId(v string) *EnableFastSnapshotRestoreErrorItem {
+	s.SnapshotId = &v
+	return s
+}
+
+// Describes an error that occurred when enabling fast snapshot restores.
+type EnableFastSnapshotRestoreStateError struct {
+	_ struct{} `type:"structure"`
+
+	// The error code.
+	Code *string `locationName:"code" type:"string"`
+
+	// The error message.
+	Message *string `locationName:"message" type:"string"`
+}
+
+// String returns the string representation
+func (s EnableFastSnapshotRestoreStateError) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s EnableFastSnapshotRestoreStateError) GoString() string {
+	return s.String()
+}
+
+// SetCode sets the Code field's value.
+func (s *EnableFastSnapshotRestoreStateError) SetCode(v string) *EnableFastSnapshotRestoreStateError {
+	s.Code = &v
+	return s
+}
+
+// SetMessage sets the Message field's value.
+func (s *EnableFastSnapshotRestoreStateError) SetMessage(v string) *EnableFastSnapshotRestoreStateError {
+	s.Message = &v
+	return s
+}
+
+// Contains information about an error that occurred when enabling fast snapshot
+// restores.
+type EnableFastSnapshotRestoreStateErrorItem struct {
+	_ struct{} `type:"structure"`
+
+	// The Availability Zone.
+	AvailabilityZone *string `locationName:"availabilityZone" type:"string"`
+
+	// The error.
+	Error *EnableFastSnapshotRestoreStateError `locationName:"error" type:"structure"`
+}
+
+// String returns the string representation
+func (s EnableFastSnapshotRestoreStateErrorItem) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s EnableFastSnapshotRestoreStateErrorItem) GoString() string {
+	return s.String()
+}
+
+// SetAvailabilityZone sets the AvailabilityZone field's value.
+func (s *EnableFastSnapshotRestoreStateErrorItem) SetAvailabilityZone(v string) *EnableFastSnapshotRestoreStateErrorItem {
+	s.AvailabilityZone = &v
+	return s
+}
+
+// SetError sets the Error field's value.
+func (s *EnableFastSnapshotRestoreStateErrorItem) SetError(v *EnableFastSnapshotRestoreStateError) *EnableFastSnapshotRestoreStateErrorItem {
+	s.Error = v
+	return s
+}
+
+// Describes fast snapshot restores that were successfully enabled.
+type EnableFastSnapshotRestoreSuccessItem struct {
+	_ struct{} `type:"structure"`
+
+	// The Availability Zone.
+	AvailabilityZone *string `locationName:"availabilityZone" type:"string"`
+
+	// The time at which fast snapshot restores entered the disabled state.
+	DisabledTime *time.Time `locationName:"disabledTime" type:"timestamp"`
+
+	// The time at which fast snapshot restores entered the disabling state.
+	DisablingTime *time.Time `locationName:"disablingTime" type:"timestamp"`
+
+	// The time at which fast snapshot restores entered the enabled state.
+	EnabledTime *time.Time `locationName:"enabledTime" type:"timestamp"`
+
+	// The time at which fast snapshot restores entered the enabling state.
+	EnablingTime *time.Time `locationName:"enablingTime" type:"timestamp"`
+
+	// The time at which fast snapshot restores entered the optimizing state.
+	OptimizingTime *time.Time `locationName:"optimizingTime" type:"timestamp"`
+
+	// The alias of the snapshot owner.
+	OwnerAlias *string `locationName:"ownerAlias" type:"string"`
+
+	// The ID of the AWS account that owns the snapshot.
+	OwnerId *string `locationName:"ownerId" type:"string"`
+
+	// The ID of the snapshot.
+	SnapshotId *string `locationName:"snapshotId" type:"string"`
+
+	// The state of fast snapshot restores.
+	State *string `locationName:"state" type:"string" enum:"FastSnapshotRestoreStateCode"`
+
+	// The reason for the state transition. The possible values are as follows:
+	//
+	//    * Client.UserInitiated - The state successfully transitioned to enabling
+	//    or disabling.
+	//
+	//    * Client.UserInitiated - Lifecycle state transition - The state successfully
+	//    transitioned to optimizing, enabled, or disabled.
+	StateTransitionReason *string `locationName:"stateTransitionReason" type:"string"`
+}
+
+// String returns the string representation
+func (s EnableFastSnapshotRestoreSuccessItem) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s EnableFastSnapshotRestoreSuccessItem) GoString() string {
+	return s.String()
+}
+
+// SetAvailabilityZone sets the AvailabilityZone field's value.
+func (s *EnableFastSnapshotRestoreSuccessItem) SetAvailabilityZone(v string) *EnableFastSnapshotRestoreSuccessItem {
+	s.AvailabilityZone = &v
+	return s
+}
+
+// SetDisabledTime sets the DisabledTime field's value.
+func (s *EnableFastSnapshotRestoreSuccessItem) SetDisabledTime(v time.Time) *EnableFastSnapshotRestoreSuccessItem {
+	s.DisabledTime = &v
+	return s
+}
+
+// SetDisablingTime sets the DisablingTime field's value.
+func (s *EnableFastSnapshotRestoreSuccessItem) SetDisablingTime(v time.Time) *EnableFastSnapshotRestoreSuccessItem {
+	s.DisablingTime = &v
+	return s
+}
+
+// SetEnabledTime sets the EnabledTime field's value.
+func (s *EnableFastSnapshotRestoreSuccessItem) SetEnabledTime(v time.Time) *EnableFastSnapshotRestoreSuccessItem {
+	s.EnabledTime = &v
+	return s
+}
+
+// SetEnablingTime sets the EnablingTime field's value.
+func (s *EnableFastSnapshotRestoreSuccessItem) SetEnablingTime(v time.Time) *EnableFastSnapshotRestoreSuccessItem {
+	s.EnablingTime = &v
+	return s
+}
+
+// SetOptimizingTime sets the OptimizingTime field's value.
+func (s *EnableFastSnapshotRestoreSuccessItem) SetOptimizingTime(v time.Time) *EnableFastSnapshotRestoreSuccessItem {
+	s.OptimizingTime = &v
+	return s
+}
+
+// SetOwnerAlias sets the OwnerAlias field's value.
+func (s *EnableFastSnapshotRestoreSuccessItem) SetOwnerAlias(v string) *EnableFastSnapshotRestoreSuccessItem {
+	s.OwnerAlias = &v
+	return s
+}
+
+// SetOwnerId sets the OwnerId field's value.
+func (s *EnableFastSnapshotRestoreSuccessItem) SetOwnerId(v string) *EnableFastSnapshotRestoreSuccessItem {
+	s.OwnerId = &v
+	return s
+}
+
+// SetSnapshotId sets the SnapshotId field's value.
+func (s *EnableFastSnapshotRestoreSuccessItem) SetSnapshotId(v string) *EnableFastSnapshotRestoreSuccessItem {
+	s.SnapshotId = &v
+	return s
+}
+
+// SetState sets the State field's value.
+func (s *EnableFastSnapshotRestoreSuccessItem) SetState(v string) *EnableFastSnapshotRestoreSuccessItem {
+	s.State = &v
+	return s
+}
+
+// SetStateTransitionReason sets the StateTransitionReason field's value.
+func (s *EnableFastSnapshotRestoreSuccessItem) SetStateTransitionReason(v string) *EnableFastSnapshotRestoreSuccessItem {
+	s.StateTransitionReason = &v
+	return s
+}
+
+type EnableFastSnapshotRestoresInput struct {
+	_ struct{} `type:"structure"`
+
+	// One or more Availability Zones. For example, us-east-2a.
+	//
+	// AvailabilityZones is a required field
+	AvailabilityZones []*string `locationName:"AvailabilityZone" locationNameList:"AvailabilityZone" type:"list" required:"true"`
+
+	// Checks whether you have the required permissions for the action, without
+	// actually making the request, and provides an error response. If you have
+	// the required permissions, the error response is DryRunOperation. Otherwise,
+	// it is UnauthorizedOperation.
+	DryRun *bool `type:"boolean"`
+
+	// The IDs of one or more snapshots. For example, snap-1234567890abcdef0. You
+	// can specify a snapshot that was shared with you from another AWS account.
+	//
+	// SourceSnapshotIds is a required field
+	SourceSnapshotIds []*string `locationName:"SourceSnapshotId" locationNameList:"SnapshotId" type:"list" required:"true"`
+}
+
+// String returns the string representation
+func (s EnableFastSnapshotRestoresInput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s EnableFastSnapshotRestoresInput) GoString() string {
+	return s.String()
+}
+
+// Validate inspects the fields of the type to determine if they are valid.
+func (s *EnableFastSnapshotRestoresInput) Validate() error {
+	invalidParams := request.ErrInvalidParams{Context: "EnableFastSnapshotRestoresInput"}
+	if s.AvailabilityZones == nil {
+		invalidParams.Add(request.NewErrParamRequired("AvailabilityZones"))
+	}
+	if s.SourceSnapshotIds == nil {
+		invalidParams.Add(request.NewErrParamRequired("SourceSnapshotIds"))
+	}
+
+	if invalidParams.Len() > 0 {
+		return invalidParams
+	}
+	return nil
+}
+
+// SetAvailabilityZones sets the AvailabilityZones field's value.
+func (s *EnableFastSnapshotRestoresInput) SetAvailabilityZones(v []*string) *EnableFastSnapshotRestoresInput {
+	s.AvailabilityZones = v
+	return s
+}
+
+// SetDryRun sets the DryRun field's value.
+func (s *EnableFastSnapshotRestoresInput) SetDryRun(v bool) *EnableFastSnapshotRestoresInput {
+	s.DryRun = &v
+	return s
+}
+
+// SetSourceSnapshotIds sets the SourceSnapshotIds field's value.
+func (s *EnableFastSnapshotRestoresInput) SetSourceSnapshotIds(v []*string) *EnableFastSnapshotRestoresInput {
+	s.SourceSnapshotIds = v
+	return s
+}
+
+type EnableFastSnapshotRestoresOutput struct {
+	_ struct{} `type:"structure"`
+
+	// Information about the snapshots for which fast snapshot restores were successfully
+	// enabled.
+	Successful []*EnableFastSnapshotRestoreSuccessItem `locationName:"successful" locationNameList:"item" type:"list"`
+
+	// Information about the snapshots for which fast snapshot restores could not
+	// be enabled.
+	Unsuccessful []*EnableFastSnapshotRestoreErrorItem `locationName:"unsuccessful" locationNameList:"item" type:"list"`
+}
+
+// String returns the string representation
+func (s EnableFastSnapshotRestoresOutput) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s EnableFastSnapshotRestoresOutput) GoString() string {
+	return s.String()
+}
+
+// SetSuccessful sets the Successful field's value.
+func (s *EnableFastSnapshotRestoresOutput) SetSuccessful(v []*EnableFastSnapshotRestoreSuccessItem) *EnableFastSnapshotRestoresOutput {
+	s.Successful = v
+	return s
+}
+
+// SetUnsuccessful sets the Unsuccessful field's value.
+func (s *EnableFastSnapshotRestoresOutput) SetUnsuccessful(v []*EnableFastSnapshotRestoreErrorItem) *EnableFastSnapshotRestoresOutput {
+	s.Unsuccessful = v
+	return s
+}
+
 type EnableTransitGatewayRouteTablePropagationInput struct {
 	_ struct{} `type:"structure"`
 
@@ -63658,7 +64872,6 @@ func (s EnableVgwRoutePropagationOutput) GoString() string {
 	return s.String()
 }
 
-// Contains the parameters for EnableVolumeIO.
 type EnableVolumeIOInput struct {
 	_ struct{} `type:"structure"`
 
@@ -67280,13 +68493,23 @@ type Host struct {
 	// The time that the Dedicated Host was allocated.
 	AllocationTime *time.Time `locationName:"allocationTime" type:"timestamp"`
 
+	// Indicates whether the Dedicated Host supports multiple instance types of
+	// the same instance family, or a specific instance type only. one indicates
+	// that the Dedicated Host supports multiple instance types in the instance
+	// family. off indicates that the Dedicated Host supports a single instance
+	// type only.
+	AllowsMultipleInstanceTypes *string `locationName:"allowsMultipleInstanceTypes" type:"string" enum:"AllowsMultipleInstanceTypes"`
+
 	// Whether auto-placement is on or off.
 	AutoPlacement *string `locationName:"autoPlacement" type:"string" enum:"AutoPlacement"`
 
 	// The Availability Zone of the Dedicated Host.
 	AvailabilityZone *string `locationName:"availabilityZone" type:"string"`
 
-	// The number of new instances that can be launched onto the Dedicated Host.
+	// The ID of the Availability Zone in which the Dedicated Host is allocated.
+	AvailabilityZoneId *string `locationName:"availabilityZoneId" type:"string"`
+
+	// Information about the instances running on the Dedicated Host.
 	AvailableCapacity *AvailableCapacity `locationName:"availableCapacity" type:"structure"`
 
 	// Unique, case-sensitive identifier that you provide to ensure the idempotency
@@ -67309,6 +68532,9 @@ type Host struct {
 
 	// The IDs and instance type that are currently running on the Dedicated Host.
 	Instances []*HostInstance `locationName:"instances" locationNameList:"item" type:"list"`
+
+	// The ID of the AWS account that owns the Dedicated Host.
+	OwnerId *string `locationName:"ownerId" type:"string"`
 
 	// The time that the Dedicated Host was released.
 	ReleaseTime *time.Time `locationName:"releaseTime" type:"timestamp"`
@@ -67336,6 +68562,12 @@ func (s *Host) SetAllocationTime(v time.Time) *Host {
 	return s
 }
 
+// SetAllowsMultipleInstanceTypes sets the AllowsMultipleInstanceTypes field's value.
+func (s *Host) SetAllowsMultipleInstanceTypes(v string) *Host {
+	s.AllowsMultipleInstanceTypes = &v
+	return s
+}
+
 // SetAutoPlacement sets the AutoPlacement field's value.
 func (s *Host) SetAutoPlacement(v string) *Host {
 	s.AutoPlacement = &v
@@ -67345,6 +68577,12 @@ func (s *Host) SetAutoPlacement(v string) *Host {
 // SetAvailabilityZone sets the AvailabilityZone field's value.
 func (s *Host) SetAvailabilityZone(v string) *Host {
 	s.AvailabilityZone = &v
+	return s
+}
+
+// SetAvailabilityZoneId sets the AvailabilityZoneId field's value.
+func (s *Host) SetAvailabilityZoneId(v string) *Host {
+	s.AvailabilityZoneId = &v
 	return s
 }
 
@@ -67390,6 +68628,12 @@ func (s *Host) SetInstances(v []*HostInstance) *Host {
 	return s
 }
 
+// SetOwnerId sets the OwnerId field's value.
+func (s *Host) SetOwnerId(v string) *Host {
+	s.OwnerId = &v
+	return s
+}
+
 // SetReleaseTime sets the ReleaseTime field's value.
 func (s *Host) SetReleaseTime(v time.Time) *Host {
 	s.ReleaseTime = &v
@@ -67412,11 +68656,14 @@ func (s *Host) SetTags(v []*Tag) *Host {
 type HostInstance struct {
 	_ struct{} `type:"structure"`
 
-	// the IDs of instances that are running on the Dedicated Host.
+	// The ID of instance that is running on the Dedicated Host.
 	InstanceId *string `locationName:"instanceId" type:"string"`
 
-	// The instance type size (for example, m3.medium) of the running instance.
+	// The instance type (for example, m3.medium) of the running instance.
 	InstanceType *string `locationName:"instanceType" type:"string"`
+
+	// The ID of the AWS account that owns the instance.
+	OwnerId *string `locationName:"ownerId" type:"string"`
 }
 
 // String returns the string representation
@@ -67438,6 +68685,12 @@ func (s *HostInstance) SetInstanceId(v string) *HostInstance {
 // SetInstanceType sets the InstanceType field's value.
 func (s *HostInstance) SetInstanceType(v string) *HostInstance {
 	s.InstanceType = &v
+	return s
+}
+
+// SetOwnerId sets the OwnerId field's value.
+func (s *HostInstance) SetOwnerId(v string) *HostInstance {
+	s.OwnerId = &v
 	return s
 }
 
@@ -67519,20 +68772,24 @@ func (s *HostOffering) SetUpfrontPrice(v string) *HostOffering {
 	return s
 }
 
-// Describes properties of a Dedicated Host.
+// Describes the properties of a Dedicated Host.
 type HostProperties struct {
 	_ struct{} `type:"structure"`
 
 	// The number of cores on the Dedicated Host.
 	Cores *int64 `locationName:"cores" type:"integer"`
 
-	// The instance type size that the Dedicated Host supports (for example, m3.medium).
+	// The instance family supported by the Dedicated Host. For example, m5.
+	InstanceFamily *string `locationName:"instanceFamily" type:"string"`
+
+	// The instance type supported by the Dedicated Host. For example, m5.large.
+	// If the host supports multiple instance types, no instanceType is returned.
 	InstanceType *string `locationName:"instanceType" type:"string"`
 
 	// The number of sockets on the Dedicated Host.
 	Sockets *int64 `locationName:"sockets" type:"integer"`
 
-	// The number of vCPUs on the Dedicated Host.
+	// The total number of vCPUs on the Dedicated Host.
 	TotalVCpus *int64 `locationName:"totalVCpus" type:"integer"`
 }
 
@@ -67549,6 +68806,12 @@ func (s HostProperties) GoString() string {
 // SetCores sets the Cores field's value.
 func (s *HostProperties) SetCores(v int64) *HostProperties {
 	s.Cores = &v
+	return s
+}
+
+// SetInstanceFamily sets the InstanceFamily field's value.
+func (s *HostProperties) SetInstanceFamily(v string) *HostProperties {
+	s.InstanceFamily = &v
 	return s
 }
 
@@ -68435,6 +69698,9 @@ type ImportImageInput struct {
 	// The specified CMK must exist in the Region that the AMI is being copied to.
 	KmsKeyId *string `type:"string"`
 
+	// The ARNs of the license configurations.
+	LicenseSpecifications []*ImportImageLicenseConfigurationRequest `locationNameList:"item" type:"list"`
+
 	// The license type to be used for the Amazon Machine Image (AMI) after importing.
 	//
 	// By default, we detect the source-system operating system (OS) and apply the
@@ -68521,6 +69787,12 @@ func (s *ImportImageInput) SetKmsKeyId(v string) *ImportImageInput {
 	return s
 }
 
+// SetLicenseSpecifications sets the LicenseSpecifications field's value.
+func (s *ImportImageInput) SetLicenseSpecifications(v []*ImportImageLicenseConfigurationRequest) *ImportImageInput {
+	s.LicenseSpecifications = v
+	return s
+}
+
 // SetLicenseType sets the LicenseType field's value.
 func (s *ImportImageInput) SetLicenseType(v string) *ImportImageInput {
 	s.LicenseType = &v
@@ -68536,6 +69808,54 @@ func (s *ImportImageInput) SetPlatform(v string) *ImportImageInput {
 // SetRoleName sets the RoleName field's value.
 func (s *ImportImageInput) SetRoleName(v string) *ImportImageInput {
 	s.RoleName = &v
+	return s
+}
+
+// The request information of license configurations.
+type ImportImageLicenseConfigurationRequest struct {
+	_ struct{} `type:"structure"`
+
+	// The ARN of a license configuration.
+	LicenseConfigurationArn *string `type:"string"`
+}
+
+// String returns the string representation
+func (s ImportImageLicenseConfigurationRequest) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ImportImageLicenseConfigurationRequest) GoString() string {
+	return s.String()
+}
+
+// SetLicenseConfigurationArn sets the LicenseConfigurationArn field's value.
+func (s *ImportImageLicenseConfigurationRequest) SetLicenseConfigurationArn(v string) *ImportImageLicenseConfigurationRequest {
+	s.LicenseConfigurationArn = &v
+	return s
+}
+
+// The response information of license configurations.
+type ImportImageLicenseConfigurationResponse struct {
+	_ struct{} `type:"structure"`
+
+	// The ARN of a license configuration.
+	LicenseConfigurationArn *string `locationName:"licenseConfigurationArn" type:"string"`
+}
+
+// String returns the string representation
+func (s ImportImageLicenseConfigurationResponse) String() string {
+	return awsutil.Prettify(s)
+}
+
+// GoString returns the string representation
+func (s ImportImageLicenseConfigurationResponse) GoString() string {
+	return s.String()
+}
+
+// SetLicenseConfigurationArn sets the LicenseConfigurationArn field's value.
+func (s *ImportImageLicenseConfigurationResponse) SetLicenseConfigurationArn(v string) *ImportImageLicenseConfigurationResponse {
+	s.LicenseConfigurationArn = &v
 	return s
 }
 
@@ -68563,6 +69883,9 @@ type ImportImageOutput struct {
 	// The identifier for the AWS Key Management Service (AWS KMS) customer master
 	// key (CMK) that was used to create the encrypted AMI.
 	KmsKeyId *string `locationName:"kmsKeyId" type:"string"`
+
+	// The ARNs of the license configurations.
+	LicenseSpecifications []*ImportImageLicenseConfigurationResponse `locationName:"licenseSpecifications" locationNameList:"item" type:"list"`
 
 	// The license type of the virtual machine.
 	LicenseType *string `locationName:"licenseType" type:"string"`
@@ -68635,6 +69958,12 @@ func (s *ImportImageOutput) SetKmsKeyId(v string) *ImportImageOutput {
 	return s
 }
 
+// SetLicenseSpecifications sets the LicenseSpecifications field's value.
+func (s *ImportImageOutput) SetLicenseSpecifications(v []*ImportImageLicenseConfigurationResponse) *ImportImageOutput {
+	s.LicenseSpecifications = v
+	return s
+}
+
 // SetLicenseType sets the LicenseType field's value.
 func (s *ImportImageOutput) SetLicenseType(v string) *ImportImageOutput {
 	s.LicenseType = &v
@@ -68700,6 +70029,9 @@ type ImportImageTask struct {
 	// The identifier for the AWS Key Management Service (AWS KMS) customer master
 	// key (CMK) that was used to create the encrypted image.
 	KmsKeyId *string `locationName:"kmsKeyId" type:"string"`
+
+	// The ARNs of the license configurations associated to the import image task.
+	LicenseSpecifications []*ImportImageLicenseConfigurationResponse `locationName:"licenseSpecifications" locationNameList:"item" type:"list"`
 
 	// The license type of the virtual machine.
 	LicenseType *string `locationName:"licenseType" type:"string"`
@@ -68769,6 +70101,12 @@ func (s *ImportImageTask) SetImportTaskId(v string) *ImportImageTask {
 // SetKmsKeyId sets the KmsKeyId field's value.
 func (s *ImportImageTask) SetKmsKeyId(v string) *ImportImageTask {
 	s.KmsKeyId = &v
+	return s
+}
+
+// SetLicenseSpecifications sets the LicenseSpecifications field's value.
+func (s *ImportImageTask) SetLicenseSpecifications(v []*ImportImageLicenseConfigurationResponse) *ImportImageTask {
+	s.LicenseSpecifications = v
 	return s
 }
 
@@ -70183,17 +71521,20 @@ func (s *InstanceBlockDeviceMappingSpecification) SetVirtualName(v string) *Inst
 	return s
 }
 
-// Information about the instance type that the Dedicated Host supports.
+// Information about the number of instances that can be launched onto the Dedicated
+// Host.
 type InstanceCapacity struct {
 	_ struct{} `type:"structure"`
 
-	// The number of instances that can still be launched onto the Dedicated Host.
+	// The number of instances that can be launched onto the Dedicated Host based
+	// on the host's available capacity.
 	AvailableCapacity *int64 `locationName:"availableCapacity" type:"integer"`
 
-	// The instance type size supported by the Dedicated Host.
+	// The instance type supported by the Dedicated Host.
 	InstanceType *string `locationName:"instanceType" type:"string"`
 
-	// The total number of instances that can be launched onto the Dedicated Host.
+	// The total number of instances that can be launched onto the Dedicated Host
+	// if there are no instances running on it.
 	TotalCapacity *int64 `locationName:"totalCapacity" type:"integer"`
 }
 
@@ -74594,6 +75935,24 @@ type ModifyHostsInput struct {
 	// For more information, see Host Recovery (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/dedicated-hosts-recovery.html)
 	// in the Amazon Elastic Compute Cloud User Guide.
 	HostRecovery *string `type:"string" enum:"HostRecovery"`
+
+	// Specifies the instance family to be supported by the Dedicated Host. Specify
+	// this parameter to modify a Dedicated Host to support multiple instance types
+	// within its current instance family.
+	//
+	// If you want to modify a Dedicated Host to support a specific instance type
+	// only, omit this parameter and specify InstanceType instead. You cannot specify
+	// InstanceFamily and InstanceType in the same request.
+	InstanceFamily *string `type:"string"`
+
+	// Specifies the instance type to be supported by the Dedicated Host. Specify
+	// this parameter to modify a Dedicated Host to support only a specific instance
+	// type.
+	//
+	// If you want to modify a Dedicated Host to support multiple instance types
+	// in its current instance family, omit this parameter and specify InstanceFamily
+	// instead. You cannot specify InstanceType and InstanceFamily in the same request.
+	InstanceType *string `type:"string"`
 }
 
 // String returns the string representation
@@ -74634,6 +75993,18 @@ func (s *ModifyHostsInput) SetHostIds(v []*string) *ModifyHostsInput {
 // SetHostRecovery sets the HostRecovery field's value.
 func (s *ModifyHostsInput) SetHostRecovery(v string) *ModifyHostsInput {
 	s.HostRecovery = &v
+	return s
+}
+
+// SetInstanceFamily sets the InstanceFamily field's value.
+func (s *ModifyHostsInput) SetInstanceFamily(v string) *ModifyHostsInput {
+	s.InstanceFamily = &v
+	return s
+}
+
+// SetInstanceType sets the InstanceType field's value.
+func (s *ModifyHostsInput) SetInstanceType(v string) *ModifyHostsInput {
+	s.InstanceType = &v
 	return s
 }
 
@@ -76030,7 +77401,6 @@ func (s *ModifyReservedInstancesOutput) SetReservedInstancesModificationId(v str
 	return s
 }
 
-// Contains the parameters for ModifySnapshotAttribute.
 type ModifySnapshotAttributeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -76852,7 +78222,6 @@ func (s *ModifyTransitGatewayVpcAttachmentRequestOptions) SetIpv6Support(v strin
 	return s
 }
 
-// Contains the parameters for ModifyVolumeAttribute.
 type ModifyVolumeAttributeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -84879,7 +86248,6 @@ func (s ResetNetworkInterfaceAttributeOutput) GoString() string {
 	return s.String()
 }
 
-// Contains the parameters for ResetSnapshotAttribute.
 type ResetSnapshotAttributeInput struct {
 	_ struct{} `type:"structure"`
 
@@ -94164,6 +95532,9 @@ type Volume struct {
 	// Indicates whether the volume is encrypted.
 	Encrypted *bool `locationName:"encrypted" type:"boolean"`
 
+	// Indicates whether the volume was created using fast snapshot restore.
+	FastRestored *bool `locationName:"fastRestored" type:"boolean"`
+
 	// The number of I/O operations per second (IOPS) that the volume supports.
 	// For Provisioned IOPS SSD volumes, this represents the number of IOPS that
 	// are provisioned for the volume. For General Purpose SSD volumes, this represents
@@ -94238,6 +95609,12 @@ func (s *Volume) SetCreateTime(v time.Time) *Volume {
 // SetEncrypted sets the Encrypted field's value.
 func (s *Volume) SetEncrypted(v bool) *Volume {
 	s.Encrypted = &v
+	return s
+}
+
+// SetFastRestored sets the FastRestored field's value.
+func (s *Volume) SetFastRestored(v bool) *Volume {
+	s.FastRestored = &v
 	return s
 }
 
@@ -96201,6 +97578,14 @@ const (
 )
 
 const (
+	// AllowsMultipleInstanceTypesOn is a AllowsMultipleInstanceTypes enum value
+	AllowsMultipleInstanceTypesOn = "on"
+
+	// AllowsMultipleInstanceTypesOff is a AllowsMultipleInstanceTypes enum value
+	AllowsMultipleInstanceTypesOff = "off"
+)
+
+const (
 	// ArchitectureValuesI386 is a ArchitectureValues enum value
 	ArchitectureValuesI386 = "i386"
 
@@ -96734,6 +98119,23 @@ const (
 
 	// ExportTaskStateCompleted is a ExportTaskState enum value
 	ExportTaskStateCompleted = "completed"
+)
+
+const (
+	// FastSnapshotRestoreStateCodeEnabling is a FastSnapshotRestoreStateCode enum value
+	FastSnapshotRestoreStateCodeEnabling = "enabling"
+
+	// FastSnapshotRestoreStateCodeOptimizing is a FastSnapshotRestoreStateCode enum value
+	FastSnapshotRestoreStateCodeOptimizing = "optimizing"
+
+	// FastSnapshotRestoreStateCodeEnabled is a FastSnapshotRestoreStateCode enum value
+	FastSnapshotRestoreStateCodeEnabled = "enabled"
+
+	// FastSnapshotRestoreStateCodeDisabling is a FastSnapshotRestoreStateCode enum value
+	FastSnapshotRestoreStateCodeDisabling = "disabling"
+
+	// FastSnapshotRestoreStateCodeDisabled is a FastSnapshotRestoreStateCode enum value
+	FastSnapshotRestoreStateCodeDisabled = "disabled"
 )
 
 const (
